@@ -13,7 +13,7 @@ _logger = logging.getLogger(__name__)
 def _get_databricks_workspace_client():
     from databricks.sdk import WorkspaceClient
 
-    logger.info("DatabricksSDKModelsArtifactRepository._get_databricks_workspace_client")
+    _logger.info("DatabricksSDKModelsArtifactRepository._get_databricks_workspace_client")
     return WorkspaceClient(experimental_files_ext_enable_storage_proxy=True)
 
 
