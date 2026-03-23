@@ -321,7 +321,7 @@ def save_model(
         )
     else:
         _logger.warning(
-            f"Model was missing function: {pyfunc_predict_fn}. Not logging python_function flavor!"
+            f"[DEBUG] Model was missing function: {pyfunc_predict_fn}. Not logging python_function flavor!"
         )
 
     mlflow_model.add_flavor(
