@@ -6,6 +6,8 @@ from mlflow.environment_variables import (
 )
 from mlflow.store.artifact.cloud_artifact_repo import CloudArtifactRepository
 
+_logger = logging.getLogger(__name__)
+
 
 def _get_databricks_workspace_client():
     from databricks.sdk import WorkspaceClient
