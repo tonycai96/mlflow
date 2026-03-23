@@ -10,7 +10,8 @@ from mlflow.store.artifact.cloud_artifact_repo import CloudArtifactRepository
 def _get_databricks_workspace_client():
     from databricks.sdk import WorkspaceClient
 
-    return WorkspaceClient()
+    logger.info("DatabricksSDKModelsArtifactRepository._get_databricks_workspace_client")
+    return WorkspaceClient(experimental_files_ext_enable_storage_proxy=True)
 
 
 class DatabricksSDKModelsArtifactRepository(CloudArtifactRepository):
