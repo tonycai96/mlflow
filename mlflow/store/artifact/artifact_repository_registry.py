@@ -77,6 +77,7 @@ class ArtifactRepositoryRegistry:
         """
         scheme = get_uri_scheme(artifact_uri)
         repository = self._registry.get(scheme)
+        _logger.warn("[DEBUG] get_artifact_repository (scheme=%s, repository=%s)", scheme, repository)
         if repository is None:
             raise MlflowException(
                 f"Could not find a registered artifact repository for: {artifact_uri}. "
@@ -85,6 +86,7 @@ class ArtifactRepositoryRegistry:
         repository_instance = repository(
             artifact_uri, tracking_uri=tracking_uri, registry_uri=registry_uri
         )
+        _logger.warn("[DEBUG] get_artifact_repository (artifact_uri=%s, tracking_uri=%s, registry_uri=%s)", artifact_uri, tracking_uri, registry_uri)
 
         workspace_name = get_request_workspace()
         if workspace_name and hasattr(repository_instance, "for_workspace"):
