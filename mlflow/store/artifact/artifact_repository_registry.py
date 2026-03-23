@@ -1,3 +1,4 @@
+import logging
 import warnings
 
 from mlflow.exceptions import MlflowException
@@ -21,6 +22,8 @@ from mlflow.store.artifact.uc_volume_artifact_repo import uc_volume_artifact_rep
 from mlflow.utils.plugins import get_entry_points
 from mlflow.utils.uri import get_uri_scheme, is_uc_volumes_uri
 from mlflow.utils.workspace_context import get_request_workspace
+
+_logger = logging.getLogger(__name__)
 
 
 class ArtifactRepositoryRegistry:
