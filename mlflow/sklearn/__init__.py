@@ -475,31 +475,32 @@ def log_model(
             mlflow.sklearn.log_model(sk_model, name="sk_models", signature=signature)
 
     """
-    return Model.log(
-        artifact_path=artifact_path,
-        name=name,
-        flavor=mlflow.sklearn,
-        sk_model=sk_model,
-        conda_env=conda_env,
-        code_paths=code_paths,
-        serialization_format=serialization_format,
-        registered_model_name=registered_model_name,
-        signature=signature,
-        input_example=input_example,
-        await_registration_for=await_registration_for,
-        pip_requirements=pip_requirements,
-        extra_pip_requirements=extra_pip_requirements,
-        pyfunc_predict_fn=pyfunc_predict_fn,
-        metadata=metadata,
-        extra_files=extra_files,
-        params=params,
-        tags=tags,
-        model_type=model_type,
-        step=step,
-        model_id=model_id,
-        skops_trusted_types=skops_trusted_types,
-        **kwargs,
-    )
+    # return Model.log(
+    #     artifact_path=artifact_path,
+    #     name=name,
+    #     flavor=mlflow.sklearn,
+    #     sk_model=sk_model,
+    #     conda_env=conda_env,
+    #     code_paths=code_paths,
+    #     serialization_format=serialization_format,
+    #     registered_model_name=registered_model_name,
+    #     signature=signature,
+    #     input_example=input_example,
+    #     await_registration_for=await_registration_for,
+    #     pip_requirements=pip_requirements,
+    #     extra_pip_requirements=extra_pip_requirements,
+    #     pyfunc_predict_fn=pyfunc_predict_fn,
+    #     metadata=metadata,
+    #     extra_files=extra_files,
+    #     params=params,
+    #     tags=tags,
+    #     model_type=model_type,
+    #     step=step,
+    #     model_id=model_id,
+    #     skops_trusted_types=skops_trusted_types,
+    #     **kwargs,
+    # )
+    return None
 
 
 def _load_model_from_local_file(path, serialization_format, skops_trusted_types=None):
