@@ -95,6 +95,9 @@ class ArtifactRepositoryRegistry:
         if workspace_name and hasattr(repository_instance, "for_workspace"):
             repository_instance = repository_instance.for_workspace(workspace_name)
 
+        _logger.warn("[DEBUG] repository_instance: %s", repository_instance)
+        _logger.warn("[DEBUG] repository_instance: %s", repository_instance.__class__)
+        
         return repository_instance
 
     def get_registered_artifact_repositories(self):
