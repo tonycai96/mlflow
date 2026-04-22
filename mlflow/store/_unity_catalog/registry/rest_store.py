@@ -248,8 +248,9 @@ def get_feature_dependencies(model_dir):
     Databricks. In OSS mlflow, the dependencies are always empty ("").
     """
     model = _load_model(model_dir)
+    model_info = model.get_model_info()
     if (
-        model.flavors.get("python_function", {}).get("loader_module")
+        model_info.flavors.get("python_function", {}).get("loader_module")
         == mlflow.models.model._DATABRICKS_FS_LOADER_MODULE
     ):
         raise MlflowException(
@@ -267,6 +268,7 @@ def get_model_version_dependencies(model_dir):
     from mlflow.models.resources import ResourceType
 
     model = _load_model(model_dir)
+    model_info = model.get_model_info()
     dependencies = []
 
     # Try to get model.auth_policy.system_auth_policy.resources. If that is not found or empty,
@@ -322,7 +324,9 @@ def get_model_version_dependencies(model_dir):
         _DATABRICKS_CHAT_ENDPOINT_NAME_KEY = "databricks_chat_endpoint_name"
         _DB_DEPENDENCY_KEY = "databricks_dependency"
 
-        databricks_dependencies = model.flavors.get("langchain", {}).get(_DB_DEPENDENCY_KEY, {})
+        databricks_dependencies = model_info.flavors.get("langchain", {}).get(
+            _DB_DEPENDENCY_KEY, {}
+        )
 
         index_names = _fetch_langchain_dependency_from_model_info(
             databricks_dependencies, _DATABRICKS_VECTOR_SEARCH_INDEX_NAME_KEY
@@ -709,6 +713,13 @@ class UcModelRegistryStore(BaseRestStore):
             mlflow.protos.databricks_uc_registry_messages_pb2.TemporaryCredentials containing
             temporary model version credentials.
         """
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "_get_temporary_model_version_write_credentials: calling generate-temporary-credentials "
+            "for model %s version %s",
+            name,
+            version,
+        )
         req_body = message_to_json(
             GenerateTemporaryModelVersionCredentialsRequest(
                 name=name, version=version, operation=MODEL_VERSION_OPERATION_READ_WRITE
@@ -988,6 +999,13 @@ class UcModelRegistryStore(BaseRestStore):
             header_base64 = base64.b64encode(header_json.encode())
             extra_headers = {_DATABRICKS_LINEAGE_ID_HEADER: header_base64}
         full_name = get_full_name_from_sc(name, self.spark)
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "_create_model_version_with_optional_signature_validation: "
+            "entering _local_model_dir, source=%s local_model_path=%s",
+            source,
+            local_model_path,
+        )
         with self._local_model_dir(source, local_model_path) as local_model_dir:
             if not bypass_signature_validation:
                 self._validate_model_signature(local_model_dir)
@@ -1054,6 +1072,13 @@ class UcModelRegistryStore(BaseRestStore):
             A single object of :py:class:`mlflow.entities.model_registry.ModelVersion`
             created in the backend.
         """
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "UcModelRegistryStore.create_model_version called: name=%s source=%s local_model_path=%s",
+            name,
+            source,
+            local_model_path,
+        )
         return self._create_model_version_with_optional_signature_validation(
             name=name,
             source=source,
@@ -1072,15 +1097,41 @@ class UcModelRegistryStore(BaseRestStore):
                 name=model_version.name, version=model_version.version
             )
 
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "_get_artifact_repo: checking is_databricks_sdk_models_artifact_repository_enabled "
+            "for model %s version %s",
+            model_version.name,
+            model_version.version,
+        )
         if is_databricks_sdk_models_artifact_repository_enabled(self.get_host_creds()):
+            _logger.info(
+                "[generate-temporary-credentials debug] "
+                "_get_artifact_repo: SDK repo enabled — using DatabricksSDKModelsArtifactRepository "
+                "(generate-temporary-credentials will NOT be called)"
+            )
             return DatabricksSDKModelsArtifactRepository(model_name, model_version.version)
 
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "_get_artifact_repo: SDK repo disabled — calling generate-temporary-credentials"
+        )
         scoped_token = base_credential_refresh_def()
         if scoped_token.storage_mode == StorageMode.DEFAULT_STORAGE:
+            _logger.info(
+                "[generate-temporary-credentials debug] "
+                "_get_artifact_repo: storage_mode=DEFAULT_STORAGE — using PresignedUrlArtifactRepository"
+            )
             return PresignedUrlArtifactRepository(
                 self.get_host_creds(), model_version.name, model_version.version
             )
 
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "_get_artifact_repo: using cloud artifact repo with scoped token, "
+            "storage_location=%s",
+            model_version.storage_location,
+        )
         return get_artifact_repo_from_storage_info(
             storage_location=model_version.storage_location,
             scoped_token=scoped_token,
