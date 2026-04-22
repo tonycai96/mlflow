@@ -429,7 +429,14 @@ def get_full_name_from_sc(name, spark) -> str:
 def is_databricks_sdk_models_artifact_repository_enabled(host_creds):
     # Return early if the environment variable is set to use the SDK models artifact repository
     if MLFLOW_USE_DATABRICKS_SDK_MODEL_ARTIFACTS_REPO_FOR_UC.defined:
-        return MLFLOW_USE_DATABRICKS_SDK_MODEL_ARTIFACTS_REPO_FOR_UC.get()
+        result = MLFLOW_USE_DATABRICKS_SDK_MODEL_ARTIFACTS_REPO_FOR_UC.get()
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "is_databricks_sdk_models_artifact_repository_enabled: env var "
+            f"MLFLOW_USE_DATABRICKS_SDK_MODEL_ARTIFACTS_REPO_FOR_UC is set, returning %s",
+            result,
+        )
+        return result
 
     endpoint, method = _METHOD_TO_INFO[IsDatabricksSdkModelsArtifactRepositoryEnabledRequest]
     req_body = message_to_json(IsDatabricksSdkModelsArtifactRepositoryEnabledRequest())
@@ -443,12 +450,22 @@ def is_databricks_sdk_models_artifact_repository_enabled(host_creds):
             json_body=req_body,
             response_proto=response_proto,
         )
-        return resp.is_databricks_sdk_models_artifact_repository_enabled
+        result = resp.is_databricks_sdk_models_artifact_repository_enabled
+        _logger.info(
+            "[generate-temporary-credentials debug] "
+            "is_databricks_sdk_models_artifact_repository_enabled: server returned %s",
+            result,
+        )
+        return result
     except Exception as e:
         _logger.warning(
             "Failed to confirm if DatabricksSDKModelsArtifactRepository should be used; "
             f"falling back to default. Error: {e}"
         )
+    _logger.info(
+        "[generate-temporary-credentials debug] "
+        "is_databricks_sdk_models_artifact_repository_enabled: defaulting to False after exception"
+    )
     return False
 
 
