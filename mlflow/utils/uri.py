@@ -192,6 +192,37 @@ def remove_databricks_profile_info_from_artifact_uri(artifact_uri):
     return urllib.parse.urlunparse(parsed._replace(netloc=""))
 
 
+def _is_uc_volumes_path(path: str) -> bool:
+    return re.match(r"^/[vV]olumes?/", path) is not None
+
+
+def is_uc_volumes_uri(uri: str) -> bool:
+    parsed_uri = urllib.parse.urlparse(uri)
+    return parsed_uri.scheme == "dbfs" and _is_uc_volumes_path(parsed_uri.path)
+
+
+def is_valid_uc_volumes_uri(uri: str) -> bool:
+    parsed_uri = urllib.parse.urlparse(uri)
+    return parsed_uri.scheme == "dbfs" and bool(
+        re.match(r"^/[vV]olumes?/[^/]+/[^/]+/[^/]+/[^/]+", parsed_uri.path)
+    )
+
+
+def strip_scheme(uri: str) -> str:
+    """
+    Strips the scheme from the specified URI.
+
+    Example:
+
+    >>> strip_scheme("http://example.com")
+    '//example.com'
+    """
+    parsed = urllib.parse.urlparse(uri)
+    # `_replace` looks like a private method, but it's actually part of the public API:
+    # https://docs.python.org/3/library/collections.html#collections.somenamedtuple._replace
+    return urllib.parse.urlunparse(parsed._replace(scheme=""))
+
+
 def add_databricks_profile_info_to_artifact_uri(artifact_uri, databricks_profile_uri):
     """
     Throws an exception if ``databricks_profile_uri`` is not valid.

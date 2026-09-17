@@ -227,6 +227,19 @@ def is_dbfs_fuse_available():
             return False
 
 
+def is_uc_volume_fuse_available():
+    with open(os.devnull, "w") as devnull_stderr, open(os.devnull, "w") as devnull_stdout:
+        try:
+            return (
+                subprocess.call(
+                    ["mountpoint", "/Volumes"], stderr=devnull_stderr, stdout=devnull_stdout
+                )
+                == 0
+            )
+        except Exception:
+            return False
+
+
 @_use_repl_context_if_available("isInCluster")
 def is_in_cluster():
     try:
