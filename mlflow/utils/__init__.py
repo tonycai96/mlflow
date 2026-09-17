@@ -1,4 +1,5 @@
 import base64
+import importlib.metadata
 import inspect
 import logging
 import socket
@@ -7,6 +8,9 @@ import uuid
 from contextlib import closing
 from itertools import islice
 from sys import version_info
+from typing import Optional
+
+from packaging.version import InvalidVersion, Version
 
 _logger = logging.getLogger(__name__)
 
@@ -15,6 +19,27 @@ PYTHON_VERSION = f"{version_info.major}.{version_info.minor}.{version_info.micro
 
 
 _logger = logging.getLogger(__name__)
+
+
+def get_installed_version(dist_name: str) -> Optional[Version]:
+    """Return the parsed version of an installed distribution, or ``None`` if it is not installed
+    or its metadata does not expose a parseable version. Never raises.
+
+    On some environments (e.g. Databricks Serverless) ``importlib.metadata.version`` can return
+    ``None`` or raise for a vendored/missing distribution, and ``Version(None)`` raises
+    ``TypeError``. Callers comparing against a threshold should treat ``None`` as "unknown" and
+    fall back to their safe default.
+    """
+    try:
+        raw = importlib.metadata.version(dist_name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
+    if not raw:
+        return None
+    try:
+        return Version(raw)
+    except InvalidVersion:
+        return None
 
 
 def get_major_minor_py_version(py_version):

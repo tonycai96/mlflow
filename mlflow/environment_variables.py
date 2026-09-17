@@ -536,3 +536,17 @@ _MLFLOW_RUN_SLOW_TESTS = _BooleanEnvironmentVariable("MLFLOW_RUN_SLOW_TESTS", Fa
 #: The OpenJDK version to install in the Docker image used for MLflow models.
 #: (default: ``11``)
 MLFLOW_DOCKER_OPENJDK_VERSION = _EnvironmentVariable("MLFLOW_DOCKER_OPENJDK_VERSION", str, "11")
+
+#: Specifies whether to write artifacts to a UC Volume FUSE mount (``/Volumes/...``) using local
+#: filesystem APIs instead of the Databricks Files REST API when the FUSE mount is available.
+#: (default: ``True``)
+MLFLOW_ENABLE_UC_VOLUME_FUSE_ARTIFACT_REPO = _BooleanEnvironmentVariable(
+    "MLFLOW_ENABLE_UC_VOLUME_FUSE_ARTIFACT_REPO", True
+)
+
+#: Specifies the chunk size in bytes to use when performing a multipart upload of a large file
+#: to a UC Volume via the Databricks Files REST API.
+#: (default: ``10485760`` (10 MB))
+MLFLOW_MULTIPART_UPLOAD_CHUNK_SIZE = _EnvironmentVariable(
+    "MLFLOW_MULTIPART_UPLOAD_CHUNK_SIZE", int, 10 * 1024**2
+)
